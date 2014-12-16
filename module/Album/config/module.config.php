@@ -3,6 +3,7 @@ return array(
         'controllers' => array(
                 'invokables' => array(
                         'Album\Controller\Album' => 'Album\Controller\AlbumController',
+                        'Album\Controller\Auth' => 'Album\Controller\AuthController',
                 ),
         ),
         
@@ -18,6 +19,19 @@ return array(
                                         ),
                                         'defaults' => array(
                                                 'controller' => 'Album\Controller\Album',
+                                                'action'     => 'index',
+                                        ),
+                                ),
+                        ),
+                        'auth' => array(
+                                'type'    => 'segment',
+                                'options' => array(
+                                        'route'    => '/auth[/:action]',
+                                        'constraints' => array(
+                                                'action' => '[a-zA-Z][a-zA-Z0-9_-]*',
+                                        ),
+                                        'defaults' => array(
+                                                'controller' => 'Album\Controller\Auth',
                                                 'action'     => 'index',
                                         ),
                                 ),
