@@ -5,6 +5,8 @@ use Zend\Mvc\Controller\AbstractActionController;
 use Zend\View\Model\ViewModel;
 use Album\Model\Album;
 use Album\Form\AlbumForm;
+use Zend\Authentication\AuthenticationService;
+use Zend\Authentication\Storage\Session;
 class AlbumController extends AbstractActionController
 {
     protected $albumTable;
@@ -17,6 +19,23 @@ class AlbumController extends AbstractActionController
 
     public function addAction()
     {
+        $serviceManager = $this->getServiceLocator();
+        $auth = $serviceManager->get('AlbumAuth');
+        
+        if($auth->hasIdentity()){
+            $identity=$auth->getIdentity();
+            $role = $identity['role'];
+        }else{
+            return $this->redirect()->toRoute('auth',array('action'=>'index'));
+        }
+        //
+        $acl = $serviceManager->get('AclService');
+        $ressource=__METHOD__;
+        if(!$acl->isAllowed($role,$ressource)){
+                return $this->redirect()->toRoute('album',array('action'=>'noprivilege'));
+        }
+        //
+        
         $form = new AlbumForm();
         $form->get('submit')->setValue('Add');
         
@@ -105,6 +124,11 @@ class AlbumController extends AbstractActionController
                 'album' => $this->getAlbumTable()->getAlbum($id)
         );
     }
+    
+    public function noprivilegeAction(){
+        return array();
+    }
+    
     public function getAlbumTable()
     {
         if (!$this->albumTable) {
